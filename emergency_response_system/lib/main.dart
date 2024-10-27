@@ -17,30 +17,56 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MapScreen(),
+      home: MyHomePage(),
     );
   }
 }
 
-class MapScreen extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState()=> _MyHomePageState();
+}
+class _MyHomePageState extends State<MyHomePage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('OpenStreetMap Example'),
-      ),
-      body: FlutterMap(
-        options: MapOptions(
-          center: LatLng(27.7172, 85.3240), // Coordinates of Kathmandu
-          zoom: 13.0,
+        title: Text(
+          'OpenStreetMap Example',
+          style: TextStyle(fontSize: 22),
         ),
-        layers: [
-          TileLayerOptions(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c'],
-          ),
-        ],
       ),
+      body: content()
+    );
+  }
+  Widget content(){
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: LatLng(29.0773039,80.2707315),
+        initialZoom: 11,
+        interactionOptions: 
+          const InteractionOptions(flags: ~InteractiveFlag.doubleTapZoom),
+      ),
+      children: [
+        openStreetMapTileLater,
+        MarkerLayer(markers: [
+          Marker(
+            point: LatLng(28.9979789,80.1482283),
+            width: 60,
+            height: 60,
+            alignment: Alignment.centerLeft,
+            child: Icon(
+              Icons.location_pin,
+              size: 60,
+              color: Colors.red,
+            )
+          )
+        ])
+      ],
     );
   }
 }
+
+TileLayer get openStreetMapTileLater => TileLayer(
+  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+);
