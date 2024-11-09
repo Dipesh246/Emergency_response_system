@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,6 +50,19 @@ class _MyHomePageState extends State<MyHomePage>{
       ),
       children: [
         openStreetMapTileLater,
+        PolylineLayer(
+          polylines: [
+            Polyline(
+              points: [
+                LatLng(28.9979789, 80.1482283), // Starting point
+                LatLng(29.0773039, 80.2707315), // Destination
+              ],
+              strokeWidth: 4.0,
+              color: Colors.blue,
+            ),
+          ],
+        ),
+
         MarkerLayer(markers: [
           Marker(
             point: LatLng(28.9979789,80.1482283),
