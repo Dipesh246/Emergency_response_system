@@ -9,6 +9,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _authService = AuthService();
   final _usernameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _emailController = TextEditingController();
@@ -30,6 +32,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       await _authService.register(
         username: _usernameController.text,
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
         password: _passwordController.text,
         confirmPassword: _confirmPasswordController.text,
         email: _emailController.text,
@@ -53,74 +57,192 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      // appBar: AppBar(title: Text('Register')),
+      backgroundColor: const Color.fromARGB(174, 241, 211, 211),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset('assets/images/emr_logo.png', height: 150),
+              SizedBox(height: 20),
+
               TextField(
                 controller: _usernameController,
-                decoration: InputDecoration(labelText: 'Username'),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.person),
+                  labelText: 'Username',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
               ),
+              SizedBox(height: 15,),
+
+              TextField(
+                controller: _firstNameController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.person),
+                  labelText: 'First Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15,),
+
+              TextField(
+                controller: _lastNameController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.person),
+                  labelText: 'Last Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15,),
+
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.lock),
+                  labelText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 15),
+
+              TextField(
+                controller: _confirmPasswordController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.lock),
+                  labelText: 'Confirm Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 15),
+              
               TextField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.email),
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
               ),
+              SizedBox(height: 15),
+
               TextField(
                 controller: _phoneController,
-                decoration: InputDecoration(labelText: 'Phone Number'),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.phone),
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
                 keyboardType: TextInputType.phone,
               ),
+              SizedBox(height: 15,),
+
               TextField(
                 controller: _addressController,
-                decoration: InputDecoration(labelText: 'Address'),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.home),
+                  labelText: 'Address',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
               ),
-              DropdownButtonFormField(
+              SizedBox(height: 15),
+
+              DropdownButtonFormField<String>(
                 value: _userType,
-                items: [
-                  DropdownMenuItem(
-                    value: 'CUSTOMER',
-                    child: Text('Customer'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'RESPONDER',
-                    child: Text('Responder'),
-                  ),
-                ],
                 onChanged: (value) {
                   setState(() {
                     _userType = value!;
                     _isResponder = _userType == 'RESPONDER';
                   });
                 },
-                decoration: InputDecoration(labelText: 'User Type'),
+                items: [
+                  DropdownMenuItem(value: 'CUSTOMER', child: Text('Customer')),
+                  DropdownMenuItem(value: 'RESPONDER', child: Text('Responder')),
+                ],
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.person_outline),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
               ),
+              SizedBox(height: 15),
+
               if (_isResponder)
                 TextField(
                   controller: _licenseController,
-                  decoration: InputDecoration(labelText: 'License Number'),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.badge),
+                    labelText: 'License Number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                 ),
+              SizedBox(height: 15),
+
               if (_isResponder)
                 TextField(
                   controller: _vehicleController,
-                  decoration: InputDecoration(labelText: 'Vehicle Number'),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.directions_car),
+                    labelText: 'Vehicle Number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                 ),
-              TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-              ),
-              TextField(
-                controller: _confirmPasswordController,
-                decoration: InputDecoration(labelText: 'Confirm Password'),
-                obscureText: true,
-              ),
               SizedBox(height: 20),
+
               ElevatedButton(
                 onPressed: _register,
-                child: Text('Register'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromARGB(241, 118, 16, 16),
+                  padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Register',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Don't have an account?"),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                    child: Text(
+                      'Login here',
+                      style: TextStyle(color: const Color.fromARGB(241, 118, 16, 16)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

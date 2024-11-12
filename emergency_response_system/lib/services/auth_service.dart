@@ -7,6 +7,8 @@ class AuthService {
 
   Future<Map<String, dynamic>> register({
     required String username,
+    required String firstName,
+    required String lastName,
     required String password,
     required String confirmPassword,
     required String email,
@@ -18,6 +20,8 @@ class AuthService {
   }) async {
     final body = {
       'username': username,
+      'first_name': firstName,
+      'last_name': lastName,
       'password': password,
       'confirm_password': confirmPassword,
       'email': email,
@@ -52,7 +56,6 @@ class AuthService {
       String errorMessage = 'An unknown error occurred';
       try {
         final errorResponse = json.decode(response.body);
-        print(errorResponse);
         if (errorResponse is Map && errorResponse.containsKey('error')) {
           errorMessage = errorResponse['error']; // Extract the error message from the backend
         } else {
@@ -84,6 +87,7 @@ class AuthService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', data['access']);
       await prefs.setString('refresh_token', data['refresh']);
+      await prefs.setInt('user_id', data['user']['id']);
       return data;
     } else {
       throw Exception('Login failed: ${response.body}');

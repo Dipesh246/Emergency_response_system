@@ -31,25 +31,58 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Emergency Response System \n Login')),
+      // appBar: AppBar(title: Text('Emergency Response System \n Login')),
+      backgroundColor: const Color.fromARGB(174, 241, 211, 211),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset(
+              'assets/images/emr_logo.png',
+              height: 150,
+            ),
+            const SizedBox(height: 20),
+
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.person),
+                labelText: 'Username',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),  
             ),
+            SizedBox(height: 20,),
+
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.lock),
+                labelText: 'Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
               obscureText: true,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
+
             ElevatedButton(
               onPressed: _login,
-              child: Text('Login'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromARGB(241, 118, 16, 16),
+                padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                'Login',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
             SizedBox(height: 20),
             // Add a text button for registration
@@ -63,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text(
                     'Register here',
-                    style: TextStyle(color: Colors.blue),
+                    style: TextStyle(color: const Color.fromARGB(241, 118, 16, 16)),
                   ),
                 ),
               ],
