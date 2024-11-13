@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location_service.dart';
-import '../services/api_service.dart';
+import '../services/api_service.dart'; // You should implement ApiService for API calls
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -11,14 +13,25 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final TextEditingController _detailsController = TextEditingController();
   bool isRequesting = false;
+  MapController _mapController = MapController();
+  LatLng _currentLocation = LatLng(27.7172, 85.3240);
+  bool _locationFetched = false;
+  List<LatLng> respondersLocations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentLocation();
+    _fetchResponders();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Map Widget (Replace with your map implementation)
-          Center(child: Text("Map goes here")),
+          // Map Widget
+          _buildMap(),
 
           // Customer Request Form
           Align(
@@ -64,26 +77,104 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  // Build Map widget
+  Widget _buildMap() {
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: _currentLocation,
+        initialZoom: 15.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'emergency_response_system',
+        ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              width: 80.0,
+              height: 80.0,
+              point: _currentLocation,
+              child: Icon(
+                Icons.location_on,
+                color: Colors.red,
+                size: 40,
+              ),
+            ),
+            // Add markers for each responder's location
+            ...respondersLocations.map(
+              (responderLocation) => Marker(
+                width: 80.0,
+                height: 80.0,
+                point: responderLocation,
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.blue,
+                  size: 40,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Fetch the current location
+  Future<void> _fetchCurrentLocation() async {
+    LocationService locationService = LocationService();
+    Position? position = await locationService.getCurrentLocation();
+    if (position != null) {
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        _locationFetched = true;
+        _mapController.move(_currentLocation, 15.0);
+      });
+
+      
+      await locationService.updateResponderLocation(position.latitude, position.longitude);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Unable to get current location.")),
+      );
+    }
+  }
+
+  Future<void> _fetchResponders() async {
+    try {
+      ApiService apiService = ApiService();
+      List<dynamic> responders = await apiService.fetchResponders();
+      setState(() {
+        respondersLocations = responders.map((responder) {
+          return LatLng(responder['latitude'], responder['longitude']);
+        }).toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching responders: $e")),
+      );
+    }
+  }
+
+  // Send emergency request to the backend
   Future<void> _sendEmergencyRequest() async {
     setState(() {
       isRequesting = true;
     });
 
     try {
-      // Get the current location
-      Position? position = await LocationService().getCurrentLocation();
-      if (position == null) {
+      if (!_locationFetched) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Unable to get current location.")),
+          SnackBar(content: Text("Location not available.")),
         );
         return;
       }
 
-      // Send the request to the backend
       String details = _detailsController.text;
       bool requestSent = await ApiService().sendEmergencyRequest(
-        latitude: position.latitude,
-        longitude: position.longitude,
+        latitude: _currentLocation.latitude,
+        longitude: _currentLocation.longitude,
         details: details,
       );
 

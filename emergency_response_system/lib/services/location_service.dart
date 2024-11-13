@@ -3,10 +3,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 
 class LocationService {
-  final String apiUrl = 'http://192.168.1.78:8002/api';  // Your backend API URL
+  final String apiUrl = 'http://192.168.1.71:8002/api';  // Your backend API URL
 
   // Function to get the access token from SharedPreferences
   Future<String?> getAccessToken() async {
@@ -35,7 +34,7 @@ class LocationService {
       return;
     }
 
-    final patch_url = Uri.parse('$apiUrl/responders/userId');
+    final patch_url = Uri.parse('$apiUrl/responders/$userId');
     final post_url = Uri.parse('$apiUrl/responders');
     final headers = {
       'Authorization': 'Bearer $token', // Use the JWT token
@@ -79,7 +78,6 @@ class LocationService {
     if (!serviceEnabled) {
       return null;
     }
-
     // Check location permission status
     PermissionStatus permission = await Permission.location.status;
     if (permission == PermissionStatus.denied) {

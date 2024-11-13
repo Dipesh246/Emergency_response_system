@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login successful!')),
       );
-      Navigator.pushReplacementNamed(context, '/map');
+      Navigator.pushReplacementNamed(context, '/main');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
