@@ -141,4 +141,18 @@ class ApiService {
       return [];
     }
   }
+
+  Future<List<Map<String, dynamic>>?> getTemporaryPaths(double latitude, double longitude) async {
+    final url = Uri.parse('$baseUrl/emergency-request/temporary-paths?latitude=$latitude&longitude=$longitude');
+    final response = await http.get(url);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print(data);
+      return List<Map<String, dynamic>>.from(data['paths']);
+    } else {
+      print('Failed to fetch temporary paths: ${response.body}');
+      return null;
+    }
+  }
 }

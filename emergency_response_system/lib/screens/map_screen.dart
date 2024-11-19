@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../services/location_service.dart'; // Import the LocationService
-import 'package:geolocator/geolocator.dart';
+import '../services/api_service.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({Key? key}) : super(key: key);
+  final double latitude;
+  final double longitude;
+
+  const MapScreen({Key? key, required this.latitude, required this.longitude}) : super(key: key);
 
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -13,41 +15,56 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late MapController _mapController;
-  LatLng _currentLatLng = LatLng(27.7172, 85.3240); // Default to Kathmandu
+  List<List<LatLng>> _allPaths = [];
+  List<Marker> _responderMarkers = [];
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
-    _getCurrentLocation();
+    _fetchTemporaryPaths();
   }
 
-  // Fetch current location and update responder location
-  Future<void> _getCurrentLocation() async {
-    LocationService locationService = LocationService();
-    Position? position = await locationService.getCurrentLocation();
+  // Fetch paths to nearby responders from the backend
+  Future<void> _fetchTemporaryPaths() async {
+    ApiService apiService = ApiService();
+    final pathData = await apiService.getTemporaryPaths(widget.latitude, widget.longitude);
 
-    if (position != null) {
+    if (pathData != null) {
       setState(() {
-        _currentLatLng = LatLng(position.latitude, position.longitude);
-        _mapController.move(_currentLatLng, 15.0); // Move the map to the new location
-      });
+        // Parse the paths and markers for responders
+        _allPaths = pathData.map((path) {
+          return List<LatLng>.from(path['coordinates'].map((coord) => LatLng(coord[0], coord[1])));
+        }).toList();
 
-      // Send the location update to the backend
-      await locationService.updateResponderLocation(position.latitude, position.longitude);
+        // Create markers for each responder
+        _responderMarkers = pathData.map((path) {
+          final responderLocation = path['coordinates'].last;
+          return Marker(
+            point: LatLng(responderLocation[0], responderLocation[1]),
+            width: 80,
+            height: 80,
+            child: const Icon(
+              Icons.person_pin_circle,
+              color: Colors.blue,
+              size: 40,
+            ),
+          );
+        }).toList();
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Emergency Response Map'),
-      // ),
+      appBar: AppBar(
+        title: const Text('Temporary Paths to Responders'),
+      ),
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          initialCenter: _currentLatLng,  // Dynamically update the center
+          initialCenter: LatLng(widget.latitude, widget.longitude),
           initialZoom: 15.0,
         ),
         children: [
@@ -55,10 +72,11 @@ class _MapScreenState extends State<MapScreen> {
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'emergency_response_system',
           ),
+          // Display markers for each responder
           MarkerLayer(
             markers: [
               Marker(
-                point: _currentLatLng,
+                point: LatLng(widget.latitude, widget.longitude),
                 width: 80,
                 height: 80,
                 child: const Icon(
@@ -67,7 +85,18 @@ class _MapScreenState extends State<MapScreen> {
                   size: 40,
                 ),
               ),
+              ..._responderMarkers,
             ],
+          ),
+          // Display polylines for all paths to responders
+          PolylineLayer(
+            polylines: _allPaths.map((path) {
+              return Polyline(
+                points: path,
+                color: const Color.fromARGB(255, 134, 135, 135),
+                strokeWidth: 5.0,
+              );
+            }).toList(),
           ),
         ],
       ),

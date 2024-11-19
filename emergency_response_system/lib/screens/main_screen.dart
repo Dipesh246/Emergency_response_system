@@ -182,6 +182,16 @@ class _MainScreenState extends State<MainScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Emergency request sent successfully!")),
         );
+         // Navigate to MapScreen after the request is sent
+        Navigator.pushNamed(
+          context,
+          '/map',
+          arguments: {
+            'latitude': _currentLocation.latitude,
+            'longitude': _currentLocation.longitude,
+          },
+        );
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to send emergency request.")),

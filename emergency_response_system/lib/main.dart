@@ -1,39 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/app_initializer.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/map_screen.dart';
-import 'screens/main_screen.dart';  // Add the import for main_screen.dart
+import 'screens/main_screen.dart';
 
 void main() async {
-  // Ensure Widgets are bound before running the app
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize shared preferences
-  final prefs = await SharedPreferences.getInstance();
-
-  // Check if the user is logged in
-  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
 
-  const MyApp({super.key, required this.isLoggedIn});
+  const MyApp({super.key,});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Emergency Response System',
       theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: isLoggedIn ? '/main' : '/login',  // Navigate to MainScreen if logged in
+      home: FutureBuilder<bool>(
+        future: AppInitializer.isLoggedIn(),
+        builder: (context, snapshot) {
+          // Show loading indicator while waiting for future
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Show LoginScreen if not logged in, else MainScreen
+          if (snapshot.hasData && snapshot.data == true) {
+            return MainScreen();
+          } else {
+            return LoginScreen();
+          }
+        },
+      ),
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/map': (context) => MapScreen(),
-        '/main': (context) => MainScreen(),  // Add the MainScreen route
+        '/map': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, double>;
+          return MapScreen(latitude: args['latitude']!, longitude: args['longitude']!);
+        },
+        '/main': (context) => MainScreen(),
       },
     );
   }
