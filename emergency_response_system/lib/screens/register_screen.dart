@@ -232,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have an account?"),
+                  Text("Already have an account?"),
                   TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
