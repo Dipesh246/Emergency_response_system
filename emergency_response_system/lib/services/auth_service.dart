@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl = 'http://192.168.1.71:8002/api';
+  final String baseUrl = 'http://192.168.1.78:8002/api';
 
   Future<Map<String, dynamic>> register({
     required String username,

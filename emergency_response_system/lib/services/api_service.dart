@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = "http://192.168.1.71:8002/api";
+  final String baseUrl = "http://192.168.1.78:8002/api";
 
   Future<bool> updateLocation(LatLng location, String userType) async {
     final url = Uri.parse("$baseUrl/update-location");
@@ -142,17 +142,18 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>?> getTemporaryPaths(double latitude, double longitude) async {
-    final url = Uri.parse('$baseUrl/emergency-request/temporary-paths?latitude=$latitude&longitude=$longitude');
+  Future<Map<String, dynamic>?> getNearestResponderPath(double latitude, double longitude) async {
+    final url = Uri.parse('$baseUrl/emergency-request/nearest-responder-path?latitude=$latitude&longitude=$longitude');
     final response = await http.get(url);
     print(response.statusCode);
+    
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       print(data);
-      return List<Map<String, dynamic>>.from(data['paths']);
+      return Map<String, dynamic>.from(data); // Return the nearest responder's path and details
     } else {
-      print('Failed to fetch temporary paths: ${response.body}');
-      return null;
+      print('Failed to fetch nearest responder path: ${response.body}');
+      return null; // Return null in case of failure
     }
   }
 }

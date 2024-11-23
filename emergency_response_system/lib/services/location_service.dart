@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationService {
-  final String apiUrl = 'http://192.168.1.71:8002/api';  // Your backend API URL
+  final String apiUrl = 'http://192.168.1.78:8002/api';  // Your backend API URL
 
   // Function to get the access token from SharedPreferences
   Future<String?> getAccessToken() async {
@@ -17,6 +17,11 @@ class LocationService {
   Future<int?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('user_id');  // Fetch the user_id
+  }
+
+  Future<String?> getUserType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_type'); // Assuming user_type is saved as a string
   }
 
   // Function to update responder's location
@@ -31,6 +36,12 @@ class LocationService {
     final userId = await getUserId();
     if (userId == null) {
       print('User ID not found. Please log in again.');
+      return;
+    }
+
+    final userType = await getUserType(); // Function to fetch the user type
+    if (userType != 'responder') {
+      print('User is not a responder. API call skipped.');
       return;
     }
 
